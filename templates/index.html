@@ -1,0 +1,57 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление сотрудниками</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Управление сотрудниками</h1>
+        
+        <h2>Должность</h2>
+        <div id="positions-list"></div>
+        <form id="add-position-form">
+            {% csrf_token %}
+            <label for="position-name">Название:</label>
+            <input type="text" id="position-name" name="name" required>
+            <label for="position-category">Категория:</label>
+            <select id="position-category" name="category" required>
+                <option value="Руководитель">Руководитель</option>
+                <option value="Специалист">Специалист</option>
+                <option value="Служащий">Служащий</option>
+                <option value="Рабочий">Рабочий</option>
+            </select>
+            <button type="submit">Добавить</button>
+        </form>
+        
+        <h2>Сотрудники</h2>
+        <div id="employees-list"></div>
+        <form id="add-employee-form">
+            {% csrf_token %}
+            <label for="employee-name">ФИО:</label>
+            <input type="text" id="employee-name" name="full_name" required>
+            <label for="employee-gender">Пол:</label>
+            <select id="employee-gender" name="gender" required>
+                <option value="male">Мужской</option>
+                <option value="female">Женский</option>
+            </select>
+            <label for="employee-age">Возраст:</label>
+            <input type="number" id="employee-age" name="age" required>
+            <label for="employee-position">Должность:</label>
+            <select id="employee-position" name="position_id" required>
+            </select>
+            <button type="submit">Добавить</button>
+        </form>
+    </div>
+
+    <script src="{% static 'js/axios.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
+
+

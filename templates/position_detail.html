@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр информации о должности</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body>
+<div class="container">
+    <h1>Информация о должности</h1>
+    <div id="view-mode">
+        <p><strong>Наименование:</strong> {{ position.name }}</p>
+        <p><strong>Категория:</strong> {{ position.category }}</p>
+        <button onclick="switchToEditMode()">Редактировать</button>
+    </div>
+    <div id="edit-mode" style="display: none;">
+        <form id="edit-position-form">
+            {% csrf_token %}
+            <input type="hidden" id="position-id" name="position_id" value="{{ position.id }}">
+            <label for="position-name">Наименование:</label>
+            <input type="text" id="position-name" name="name" value="{{ position.name }}" required>
+            <label for="position-category">Категория:</label>
+            <select id="position-category" name="category" required>
+                <option value="Руководитель" {% if position.category == "Руководитель" %}selected{% endif %}>Руководитель</option>
+                <option value="Специалист" {% if position.category == "Специалист" %}selected{% endif %}>Специалист</option>
+                <option value="Служащий" {% if position.category == "Служащий" %}selected{% endif %}>Служащий</option>
+                <option value="Рабочий" {% if position.category == "Рабочий" %}selected{% endif %}>Рабочий</option>
+            </select>
+            <button type="submit">Сохранить изменения</button>
+            <button type="button" onclick="switchToViewMode()">Отмена</button>
+        </form>
+    </div>
+    <a href="{% url 'index' %}" class="back-home-button">Назад</a>
+</div>
+
+<script src="{% static 'js/axios.min.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editPositionForm = document.getElementById('edit-position-form');
+        editPositionForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Предотвращаем перезагрузку страницы по умолчанию
+            const formData = new FormData(editPositionForm);
+            const positionId = formData.get('position_id'); // Получаем идентификатор должности из формы
+            axios.post(`/positions/${positionId}/edit/`, formData)
+                .then(function (response) {
+                    console.log('Success:', response);
+                    location.reload();
+                })
+                .catch(function (error) {
+                    console.error('Error editing position:', error);
+                });
+        });
+    });
+
+    function switchToEditMode() {
+        document.getElementById('view-mode').style.display = 'none';
+        document.getElementById('edit-mode').style.display = 'block';
+    }
+
+    function switchToViewMode() {
+        document.getElementById('edit-mode').style.display = 'none';
+        document.getElementById('view-mode').style.display = 'block';
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр карточки сотрудника</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body>
+<div class="container">
+    <h1>Карточка сотрудника</h1>
+    <div id="view-mode">
+        <p><strong>ФИО:</strong> {{ employee.full_name }}</p>
+        <p><strong>Пол:</strong> {{ employee.gender }}</p>
+        <p><strong>Возраст:</strong> {{ employee.age }}</p>
+        <p><strong>Должность:</strong> {{ employee.position.name }} ({{ employee.position.category }})</p>
+        <button onclick="switchToEditMode()">Редактировать</button>
+    </div>
+    <div id="edit-mode" style="display: none;">
+        <form id="edit-employee-form">
+            {% csrf_token %}
+            <input type="hidden" id="employee-id" name="employee_id" value="{{ employee.id }}">
+            <label for="employee-name">ФИО:</label>
+            <input type="text" id="employee-name" name="full_name" value="{{ employee.full_name }}" required>
+            <label for="employee-gender">Пол:</label>
+            <select id="employee-gender" name="gender" required>
+                <option value="male" {% if employee.gender == 'male' %}selected{% endif %}>Мужчина</option>
+                <option value="female" {% if employee.gender == 'female' %}selected{% endif %}>Женщина</option>
+            </select>
+            <label for="employee-age">Возраст:</label>
+            <input type="number" id="employee-age" name="age" value="{{ employee.age }}" required>
+            <label for="employee-position">Должность:</label>
+            <select id="employee-position" name="position_id" required>
+                {% for position in positions %}
+                <option value="{{ position.id }}" {% if position.id == employee.position.id %}selected{% endif %}>{{ position.name }} ({{ position.category }})</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Сохранить</button>
+            <button type="button" onclick="switchToViewMode()">Отмена</button>
+        </form>
+    </div>
+    <a href="{% url 'index' %}" class="back-home-button">Назад</a>
+</div>
+
+<script src="{% static 'js/axios.min.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editEmployeeForm = document.getElementById('edit-employee-form');
+        editEmployeeForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Предотвращаем перезагрузку страницы по умолчанию
+            const formData = new FormData(editEmployeeForm);
+            const employeeId = formData.get('employee_id'); // Получаем идентификатор сотрудника из формы
+            axios.post(`/employees/${employeeId}/edit/`, formData)
+                .then(function (response) {
+                    console.log('Success:', response);
+                    location.reload();
+                })
+                .catch(function (error) {
+                    console.error('Error editing employee:', error);
+                });
+        });
+    });
+
+    function switchToEditMode() {
+        document.getElementById('view-mode').style.display = 'none';
+        document.getElementById('edit-mode').style.display = 'block';
+    }
+
+    function switchToViewMode() {
+        document.getElementById('edit-mode').style.display = 'none';
+        document.getElementById('view-mode').style.display = 'block';
+    }
+</script>
+
+
+</body>
+</html>
